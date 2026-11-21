@@ -20,7 +20,7 @@ def top_ids(index, q, k=5):  # helper: just the product IDs of a search
 def test_db_loaded():  # seed data loaded correctly
     assert len(db.all_products()) >= 250  # brief minimum
     assert db.get_product("P-1001")["name"] == "Asics Gel Stability Running Shoes"  # planted demo product
-    assert db.get_shopper("C004")["name"] == "Priya Verma"  # privacy-test shopper
+    assert db.query("SELECT name FROM shoppers WHERE customer_id = 'C004'")[0]["name"] == "Priya Verma"  # privacy-test shopper
 
 
 def test_flat_feet_finds_arch_support(index):

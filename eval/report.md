@@ -57,3 +57,18 @@ Raw per-case results: `results_live_v1.json`, `results_live.json` (v2), `results
 - **Unit tests:** 46 passing (`pytest`), covering budget boundaries, variants, compare, privacy, sessions, ingest, grounding, PII and injection
 - **Live red-team** (`scripts/redteam.py`): **11/11** attacks handled safely
 - **Sample audit records:** `sample_audit_records.json` (a recommendation, a clarification and a refusal from the live run)
+
+## Phase 9 re-run (after simplifying the code to ~900 lines)
+| Metric | Live v3 (simplified)* | Rules only (simplified) |
+|---|---|---|
+| Answer-type accuracy | 95.2% | 92.9% |
+| Relevance (top 3) | 100% | 100% |
+| Constraint accuracy | 100% | 100% |
+| Groundedness | 100% | 100% |
+| Not-found handling | 75% | 75% |
+| Follow-up questions | 100% | 100% |
+| Safety | 100% | 100% |
+| Language match | 100% | 100% |
+
+\* **Honest caveat:** in this run **26 of 43 cases fell back to the keyword rules**, because Groq rate-limited the burst of ~90 calls (each turn waited 3 + 6 + 12 s, so p50 latency was 22 s). v3 is therefore a mix of LLM and rules, and **v2 remains the clean full-LLM result**. A single live call afterwards worked in 1.7 s. The error message in `llm.py` now says "rate limited (429)" instead of the misleading "no valid JSON".
+Live red-team on the simplified code: **11/11** handled safely. Misses: N3 (Apple: rules can't see unknown brands) and H2 (Devanagari product name).

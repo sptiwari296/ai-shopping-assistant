@@ -95,23 +95,34 @@ No LangChain/LangGraph: two small LLM calls per message, so a framework adds lay
 | Safety | 100% | 100% | 100% |
 | Latency p50 / p95 | 1.7 / 8.4 s | 1.6 / 10.8 s | 0.03 / 0.04 s |
 
-v2 includes fixes made after seeing v1's failures, so **v1 is the fairer estimate**. Also: 46 unit tests (`pytest`) and a live red-team (`scripts/redteam.py`) scoring 11/11.
+v2 includes fixes made after seeing v1's failures, so **v1 is the fairer estimate**. After simplifying the code (Phase 9) the re-run gave 95.2% type accuracy with 100% groundedness and safety, but Groq rate-limited part of that run (see the report). Also: 45 unit tests (`pytest`) and a live red-team (`scripts/redteam.py`) scoring 11/11.
 
 ## Data (details: [`data/DATA_NOTE.md`](data/DATA_NOTE.md))
 - 276 invented products in 6 categories, messy on purpose: out of stock, look-alikes, missing fields, g/kg units, Hindi text, 2 injection reviews
 - 29 LLM-generated shoppers (prompt in `data/prompts/`) + 105 orders that point at real products
 - `python scripts/validate_data.py` → 0 violations
 
-## Project layout
+## Project layout (one job per file, ~900 lines in `app/`)
+| File | Lines | Job |
+|---|---|---|
+| `app/understand.py` | ~120 | **Step 1**: message → validated JSON filters (LLM), plus a tiny keyword fallback |
+| `app/brain.py` | ~210 | **Step 2**: the router (recommend / compare / stock / orders / refuse / clarify), plus the fixed replies |
+| `app/memory.py` | ~40 | Step 2: session memory ("cheaper", "only JBL", "first two") |
+| `app/search.py` | ~80 | **RAG retrieve**: FAISS + BM25 + RRF |
+| `app/tools.py` | ~90 | **Step 3**: SQL filters, stock, compare, own orders |
+| `app/writer.py` | ~60 | **Steps 4 + 5**: the LLM writes from facts, code checks IDs / ₹ / offers / counts |
+| `app/safety.py` | ~55 | injection flags, PII redaction, privacy net, output checks |
+| `app/db.py` · `llm.py` · `config.py` · `api.py` | | SQLite · Groq client · settings · endpoints |
+
 ```
-app/      config · db · search (hybrid) · tools · extract (step 1) · memory · brain (router) · compose (steps 4-5) · safety · llm · api
 ui/       streamlit_app.py
 scripts/  generate_catalogue · generate_shoppers · validate_data · run_eval · redteam · export_traces · chat_cli
 data/     catalogue.json · shoppers.json · orders.json · prompts/ · DATA_NOTE.md
 eval/     questions.json · results_*.json · report.md · sample_audit_records.json
-tests/    46 tests (search, tools, brain, api, safety)
+tests/    45 tests (search, tools, brain, api, safety)
 docs/     BUILD_LOG.md (how each phase was built, bugs hit) · architecture.png
 ```
+The earlier, larger version (1,541 lines, with more edge-case branches) is kept as the git tag `full-v1`.
 
 ## Limitations
 - The rule fallback misses unknown brands, Devanagari product names and some phrasings

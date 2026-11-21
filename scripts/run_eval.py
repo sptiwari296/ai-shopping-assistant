@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))  # make "app" importable
 os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")  # silence a Windows warning
 
-from app import compose, config, db  # noqa: E402
+from app import config, db, writer  # noqa: E402
 
 CUSTOMER = "C005"  # every case runs as this shopper (has past orders)
 DEVANAGARI = re.compile(r"[ऀ-ॿ]")  # detects Hindi script
@@ -60,7 +60,7 @@ def grounded(reply: dict, user_text: str) -> tuple[bool, list[str]]:
         if (d["stock"] > 0) != p["in_stock"]:  # in-stock flag must equal the DB
             why.append(f"{p['product_id']} in_stock wrong")
     # text claims: IDs must exist; ₹ amounts must be real prices / numbers the shopper said / computed gaps
-    ids_in_text = set(compose.PID.findall(reply["answer"]))  # IDs mentioned in the sentence
+    ids_in_text = set(writer.PID.findall(reply["answer"]))  # IDs mentioned in the sentence
     real = {i for i in ids_in_text if db.get_product(i)}
     why += [f"unknown id {i} in text" for i in ids_in_text - real]
     allowed_ids = real | {p["product_id"] for p in reply["products"]}
@@ -71,7 +71,7 @@ def grounded(reply: dict, user_text: str) -> tuple[bool, list[str]]:
         nums.add(int(k) * 1000)
     if "lakh" in user_text.lower():  # "1 lakh" -> 100000
         nums.add(100000)
-    why += compose.grounding_check(reply["answer"], allowed_ids, nums)  # same checker the app uses
+    why += writer.grounding(reply["answer"], allowed_ids, nums)  # same checker the app uses
     return not why, why
 
 

@@ -51,7 +51,7 @@ def main():
     print(f"\n{passed}/{len(ATTACKS)} attacks handled safely")
     with db.connect() as conn:  # how many injection attempts were flagged in the traces
         flagged = sum(1 for (rec,) in conn.execute("SELECT record FROM traces WHERE session_id LIKE 'rt-%'")
-                      if json.loads(rec)["safety"]["injection_in_message"])
+                      if json.loads(rec)["injection_flags"])
     print(f"injection attempts flagged in traces: {flagged}")
 
 

@@ -1,124 +1,110 @@
-"""FastAPI app: the contract from brief section 6 (+ /transcribe for the voice bonus, /shoppers for the UI).
-
-HOW: one Brain (DB + search index) is built at startup and shared by all requests.
-Pydantic models validate every request body; bad input -> 422 before our code runs.
-WHY FastAPI: built-in validation + free Swagger UI at /docs that judges can click through.
+"""FastAPI: the 5 endpoints from brief §6, plus /transcribe (voice bonus) and /shoppers (UI picker).
+One Brain is built at startup and shared. Pydantic rejects bad input with 422 before our code runs.
 """
-import json  # traces are stored as JSON
-from contextlib import asynccontextmanager  # for the startup/shutdown "lifespan" hook
-from typing import Literal  # restrict a field to fixed values
+from contextlib import asynccontextmanager
+from typing import Literal
 
-from fastapi import FastAPI, File, HTTPException, UploadFile  # web framework pieces
-from pydantic import BaseModel, Field  # request-body schemas with validation
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from pydantic import BaseModel, Field
 
-from app import config, db  # settings + SQLite
-from app.brain import Brain  # the whole pipeline
+from app import config, db
+from app.brain import Brain
 
-state: dict = {}  # holds the single shared Brain (set at startup)
-
-
-@asynccontextmanager  # code before "yield" runs at startup, after it at shutdown
-async def lifespan(_app: FastAPI):
-    state["brain"] = Brain()  # loads DB + builds the hybrid index once
-    yield  # the API serves requests while we're paused here
+state = {}
 
 
-app = FastAPI(title="NovaMart AI Shopping Assistant", lifespan=lifespan)  # the app; title shows in Swagger /docs
+@asynccontextmanager
+async def lifespan(_app):
+    state["brain"] = Brain()  # build DB + search index once
+    yield
 
 
-class ChatIn(BaseModel):  # body of POST /chat (the brief: session_id, customer_id, message)
-    session_id: str = Field(min_length=1, max_length=64)  # which conversation
+app = FastAPI(title="NovaMart AI Shopping Assistant", lifespan=lifespan)
+
+
+class ChatIn(BaseModel):
+    session_id: str = Field(min_length=1, max_length=64)
     customer_id: str = Field(min_length=1, max_length=32)  # identity comes from HERE, never from the message (R9)
-    message: str = Field(min_length=1, max_length=1000)  # empty or huge messages -> 422 automatically
-    input_mode: Literal["text", "voice"] = "text"  # set to "voice" by the UI after /transcribe
+    message: str = Field(min_length=1, max_length=1000)
+    input_mode: Literal["text", "voice"] = "text"
 
 
-class ProductIn(BaseModel):  # body of POST /ingest (one product); bad data is rejected before it reaches the DB
-    product_id: str = Field(pattern=r"^P-\d{4}$")  # must look like P-1234
+class ProductIn(BaseModel):
+    product_id: str = Field(pattern=r"^P-\d{4}$")
     name: str = Field(min_length=2)
-    category: Literal["footwear", "electronics", "outdoor", "home_kitchen", "fashion", "sports_fitness"]  # only known categories
-    product_type: str | None = None  # new types are allowed (e.g. "Meditation Cushion")
+    category: Literal["footwear", "electronics", "outdoor", "home_kitchen", "fashion", "sports_fitness"]
+    product_type: str | None = None
     brand: str | None = None
-    price: int = Field(gt=0)  # greater than 0
-    stock: int = Field(ge=0)  # 0 or more
-    attributes: dict = Field(default_factory=dict)  # specs; may include "variants"
+    price: int = Field(gt=0)
+    stock: int = Field(ge=0)
+    attributes: dict = Field(default_factory=dict)
     description: str | None = None
-    rating: float | None = Field(default=None, ge=0, le=5)  # 0..5
+    rating: float | None = Field(default=None, ge=0, le=5)
     reviews: list[str] = Field(default_factory=list)
 
 
-@app.get("/health")  # judges / Docker healthcheck
+@app.get("/health")
 def health():
-    brain = state.get("brain")  # None while still starting
-    with db.connect() as conn:
-        n = conn.execute("SELECT COUNT(*) FROM products").fetchone()[0]  # products in the DB
-    return {"status": "ok" if brain else "starting", "products": n,
-            "indexed": len(brain.index.ids) if brain else 0, "mock_llm": config.MOCK_LLM}  # indexed should equal products
+    brain = state.get("brain")
+    return {"status": "ok" if brain else "starting", "indexed": len(brain.index.ids) if brain else 0, "mock_llm": config.MOCK_LLM}
 
 
-@app.post("/chat")  # the main endpoint
-def chat(body: ChatIn):  # FastAPI validated the body already
-    reply = state["brain"].handle(body.message, body.session_id, body.customer_id)  # run the whole pipeline
-    if body.input_mode == "voice":
-        with db.connect() as conn:  # record that this turn came from the microphone
-            row = conn.execute("SELECT record FROM traces WHERE trace_id=?", (reply["trace_id"],)).fetchone()  # the trace just saved
-            rec = json.loads(row[0])
-            rec["input_mode"] = "voice"  # mark it
-            conn.execute("UPDATE traces SET record=? WHERE trace_id=?", (json.dumps(rec, ensure_ascii=False), reply["trace_id"]))  # save back
-    return reply  # FastAPI turns the dict into JSON
+@app.post("/chat")
+def chat(body: ChatIn):
+    r = state["brain"].handle(body.message, body.session_id, body.customer_id)
+    if body.input_mode == "voice":  # mark the trace as a voice turn
+        trace = db.get_trace(r["trace_id"])
+        trace["input_mode"] = "voice"
+        with db.connect() as conn:
+            conn.execute("DELETE FROM traces WHERE trace_id = ?", (r["trace_id"],))
+        db.save_trace(trace)
+    return r
 
 
-@app.get("/products/{product_id}")  # judges check our claims against the catalogue
+@app.get("/products/{product_id}")
 def get_product(product_id: str):
     p = db.get_product(product_id)
     if not p:
-        raise HTTPException(404, "product not found")  # proper HTTP error
+        raise HTTPException(404, "product not found")
     return p
 
 
-@app.post("/ingest")  # add/update products while running
-def ingest(products: ProductIn | list[ProductIn]):  # accepts one product or a list
-    """Add or update products. They are searchable in the very next /chat (R11): DB + both indexes updated."""
-    items = products if isinstance(products, list) else [products]  # always work with a list
-    brain = state["brain"]
-    for p in items:
-        d = p.model_dump()  # Pydantic object -> plain dict
-        if d["attributes"].get("variants"):  # sized product: total stock = sum of variant stock
-            d["stock"] = sum(int(v.get("stock", 0)) for v in d["attributes"]["variants"])
-        db.upsert_product(d)  # 1) save in SQLite
-        brain.index.upsert(d)  # 2) add to FAISS + BM25 (searchable now)
-    brain.refresh_vocab()  # new brands / product types become known to the router
-    return {"ingested": len(items), "product_ids": [p.product_id for p in items]}
+@app.post("/ingest")
+def ingest(products: ProductIn | list[ProductIn]):  # R11: searchable in the very next /chat, no restart
+    items = products if isinstance(products, list) else [products]
+    for item in items:
+        p = item.model_dump()
+        if p["attributes"].get("variants"):  # total stock = sum of variant stock
+            p["stock"] = sum(int(v.get("stock", 0)) for v in p["attributes"]["variants"])
+        db.upsert_product(p)  # 1) SQLite
+        state["brain"].index.upsert(p)  # 2) FAISS + BM25
+    state["brain"].refresh()  # 3) new types / brands known to the router
+    return {"ingested": len(items), "product_ids": [i.product_id for i in items]}
 
 
-@app.get("/trace/{trace_id}")  # R10: replay how an answer was made
-def get_trace(trace_id: str):
-    with db.connect() as conn:
-        row = conn.execute("SELECT record FROM traces WHERE trace_id = ?", (trace_id,)).fetchone()
-    if not row:
+@app.get("/trace/{trace_id}")
+def get_trace(trace_id: str):  # R10: replay how an answer was made
+    t = db.get_trace(trace_id)
+    if not t:
         raise HTTPException(404, "trace not found")
-    return json.loads(row[0])  # the full audit record
+    return t
 
 
 @app.get("/shoppers")
-def shoppers():
-    """For the UI's shopper picker (stands in for a login). Only id + name, nothing private."""
-    with db.connect() as conn:
-        return [{"customer_id": r[0], "name": r[1]} for r in conn.execute("SELECT customer_id, name FROM shoppers ORDER BY customer_id")]
+def shoppers():  # for the UI's demo login: ids + names only
+    return db.query("SELECT customer_id, name FROM shoppers ORDER BY customer_id")
 
 
-@app.post("/transcribe")  # voice bonus
-async def transcribe(audio: UploadFile = File(...)):  # multipart file upload; "..." = required
-    """Voice bonus: speech -> text with Groq Whisper. The text then goes through the normal /chat."""
-    if config.MOCK_LLM:  # Whisper needs the network
-        raise HTTPException(503, "voice needs the live model (MOCK_LLM=true)")
-    data = await audio.read()  # the audio bytes
-    if not data or len(data) > 10 * 1024 * 1024:  # empty or > 10 MB -> reject
-        raise HTTPException(400, "audio missing or larger than 10 MB")
+@app.post("/transcribe")
+async def transcribe(audio: UploadFile = File(...)):  # voice bonus: speech -> text, then the normal /chat
+    if config.MOCK_LLM:
+        raise HTTPException(503, "voice needs the live model")
+    data = await audio.read()
+    if not data or len(data) > 10_000_000:
+        raise HTTPException(400, "audio missing or over 10 MB")
     from groq import Groq
     try:
-        out = Groq(api_key=config.GROQ_API_KEY).audio.transcriptions.create(  # speech -> text
-            file=(audio.filename or "speech.wav", data), model=config.WHISPER_MODEL)
+        out = Groq(api_key=config.GROQ_API_KEY).audio.transcriptions.create(file=("speech.wav", data), model=config.WHISPER_MODEL)
     except Exception as e:
-        raise HTTPException(502, f"transcription failed: {str(e)[:120]}")  # 502 = upstream service failed
-    return {"text": out.text.strip()}  # the UI then sends this text to /chat
+        raise HTTPException(502, f"transcription failed: {str(e)[:100]}")
+    return {"text": out.text.strip()}

@@ -207,3 +207,19 @@ Lesson: **mock mode hides LLM mistakes. Test both modes.** And the catalogue mus
 
 ## Phase 8b — README + final ✅
 `README.md` covers the approach, the architecture image, the 5-step flow, run steps (Docker + local), curl examples, the API table, the stack with reasons (including the Ollama → Groq swap), the 6 safety layers, the eval results (v1/v2/rules), the data summary, the layout, limitations, the AI-usage note and the team table. Tagged `final`.
+
+## Phase 9 — Simplify for explainability ✅
+**Why:** 1,541 lines in `app/` was too much to explain in an interview. Most of it was edge-case branches and a large rule fallback, not the core idea.
+
+**What changed (behaviour kept):**
+- `extract.py` → **`understand.py`** (step 1). Same LLM prompt and schema; the 120-line rule system became a ~40-line keyword fallback
+- `compose.py` → **`writer.py`** (steps 4+5). One `write()` function for all reply types, plus one `grounding()` check
+- `brain.py` 380 → ~210 lines: fixed replies became one `(en, hi, hinglish)` table; removed multi-product stock check, the out-of-scope rescue (now handled by the prompt) and the near-match suggestion (`not_found` now offers to widen the search)
+- `db.py`, `tools.py`, `memory.py`, `safety.py`, `llm.py`, `api.py` were compacted
+- `search.py`: same algorithm. `index_text` was **proved identical to full-v1 for all 276 products**, so retrieval is unchanged
+
+**Result:** `app/` **1,541 → ~900 lines (−41%)**, one job per file. The old version is kept as the tag `full-v1`.
+
+**Bug caught while rewriting:** reordering the words in `index_text` changed the embeddings, and a bare "JBL" search put a kurta at #2. I restored the exact original order and proved it identical.
+
+**Check:** 45 tests pass. Live re-run: 95.2% type, 100% grounded + safety (26 cases rate-limited to rules). Red-team 11/11. Mock eval: answer-type accuracy **92.9%** (was 90.5%), not-found **75%** (was 50%), groundedness / relevance / safety **100%**.
