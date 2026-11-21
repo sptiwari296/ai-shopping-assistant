@@ -104,7 +104,17 @@ async def transcribe(audio: UploadFile = File(...)):  # voice bonus: speech -> t
         raise HTTPException(400, "audio missing or over 10 MB")
     from groq import Groq
     try:
-        out = Groq(api_key=config.GROQ_API_KEY).audio.transcriptions.create(file=("speech.wav", data), model=config.WHISPER_MODEL)
+        out = Groq(api_key=config.GROQ_API_KEY).audio.transcriptions.create(
+            file=("speech.wav", data), model=config.WHISPER_MODEL, temperature=0,
+            prompt=VOICE_HINT)  # vocabulary hint: steers Whisper to shopping words in English / Hinglish (live bug: "soosh", "Bueno")
     except Exception as e:
         raise HTTPException(502, f"transcription failed: {str(e)[:100]}")
-    return {"text": out.text.strip()}
+    text = out.text.strip()
+    if len(text.split()) < 2:  # silence / noise gives 1-word junk -> ask again instead of searching for it
+        raise HTTPException(422, "Couldn't hear that clearly. Please speak a little longer and closer to the mic.")
+    return {"text": text}
+
+
+VOICE_HINT = ("NovaMart shopping assistant. Shopper asks in English or Hinglish, e.g.: running shoes under 5000 rupees, "
+              "Bluetooth speaker, laptop for study, trekking backpack, earbuds, kurta, mujhe sasta speaker chahiye, "
+              "joote dikhao, 3000 ke andar, compare the first two, is the blue one in size 9.")

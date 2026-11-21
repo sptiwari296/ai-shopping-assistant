@@ -28,9 +28,19 @@ def index_text(p: dict) -> str:  # the words that represent a product. Reviews a
                                      p.get("brand") or "", p.get("description") or "", specs])
 
 
+_MODEL = None  # the embedding model is loaded ONCE per process and shared (saves ~0.5 GB per extra index)
+
+
+def get_model() -> TextEmbedding:
+    global _MODEL
+    if _MODEL is None:
+        _MODEL = TextEmbedding(EMBED_MODEL, cache_dir=os.getenv("FASTEMBED_CACHE_PATH") or None)
+    return _MODEL
+
+
 class HybridIndex:
     def __init__(self):
-        self.model = TextEmbedding(EMBED_MODEL, cache_dir=os.getenv("FASTEMBED_CACHE_PATH") or None)
+        self.model = get_model()
         self.lock = threading.Lock()  # API requests run in parallel threads
         self.ids, self.texts = [], []  # position i = the same product in every list
         self.vectors = np.zeros((0, 384), dtype="float32")  # cached embeddings

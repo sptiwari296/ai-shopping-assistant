@@ -238,3 +238,12 @@ Lesson: **mock mode hides LLM mistakes. Test both modes.** And the catalogue mus
 - It **contradicted the stock check** ("no information about blue size 9"). Fix: stock answers always use the code sentence (pure facts, no LLM)
 
 **Check:** 45 tests pass.
+
+## Phase 11 — Voice accuracy ✅
+**Problem (from real UI traces):** Whisper heard "running shoes" as "running **soosh**", and one recording became "**Bueno...**" (it guessed Spanish). The slow replies in the same traces (22–44 s) came from the UI still running the old process (120b model plus old retries); a restart picks up Phase 10.
+
+**Fix:** `/transcribe` now sends Whisper a **vocabulary prompt** (shopping words in English and Hinglish) with `temperature=0`. A transcript of fewer than 2 words returns 422 "Couldn't hear that clearly" instead of searching for junk. The UI shows that message in a friendly form.
+
+**Also:** the embedding model is now loaded once per process and shared (`search.get_model()`). With the UI app running, the test suite loaded 5 copies and ran out of RAM ("bad allocation").
+
+**Check:** TTS test clips transcribe exactly ("Give me running shoes under 5000 rupees.", "Show me a cheap bluetooth speaker."). A 1-word clip → 422. Chat replies take 1.7–2.0 s. 45 tests pass.

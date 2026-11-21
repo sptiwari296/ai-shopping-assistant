@@ -97,7 +97,7 @@ if audio is not None:  # the user recorded something
         with st.spinner("Thinking…"):
             send(t.json()["text"], "voice")  # the SAME /chat pipeline as typing
     else:
-        st.warning(f"Could not transcribe: {t.text[:150]}")
+        st.warning("🎤 " + (t.json().get("detail") if t.headers.get("content-type", "").startswith("application/json") else t.text[:150]))  # friendly message
 
 prompt = st.chat_input("What are you shopping for?")  # the text box at the bottom
 if prompt:  # user pressed Enter
