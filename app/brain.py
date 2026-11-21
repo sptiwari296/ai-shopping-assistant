@@ -4,6 +4,7 @@
 A router, not agents: the intents are a fixed list, so a plain if/elif picks the path.
 """
 import json
+import re
 import time
 import uuid
 
@@ -176,8 +177,12 @@ class Brain:
         return r
 
     def product_fact(self, ext, message, state, lang, trace) -> dict:
-        if ext.product_type and not ext.product_ids and not self.known_type(ext.product_type) and norm(ext.product_type) not in GENERIC:
-            return reply("not_found", say("not_sold", lang, what=ext.product_type))  # "Is the PlayStation 5 available?"
+        if ext.product_type and not ext.product_ids and not state["last_results"] and not self.known_type(ext.product_type) \
+                and norm(ext.product_type) not in GENERIC:  # "Is the PlayStation 5 available?" (but "the blue one" after results is a follow-up)
+            return reply("not_found", say("not_sold", lang, what=ext.product_type))
+        ext.color = ext.color or next((c for c in understand.COLORS if c in message.lower().split()), None)  # LLM may miss these
+        size = re.search(r"\bsize\s*(\w+)", message.lower())
+        ext.size = ext.size or (size.group(1) if size else None)
         ids = self.targets(ext, state)
         if not ids:  # "is the blue one...?" -> the first shown product that comes in blue; never guess from nothing
             last = db.get_products(state["last_results"])
@@ -198,10 +203,8 @@ class Brain:
             fallback = f"Yes, {name}{' in ' + which if which else ''} is in stock ({s['units']} left) at ₹{c['price']:,}."
         else:
             fallback = f"Sorry, {name}{' in ' + which if which else ''} is out of stock right now."
-        answer, _, report = writer.write(message, lang, "stock answer", {"stock": s, "product": writer.lite(c)}, {c["product_id"]}, {c["price"]}, fallback)
-        trace["llm"].append({"step": "write", **report})
-        state["last_results"] = [c["product_id"]]
-        return reply("product_fact", answer, [product_out(c, fallback)])
+        state["last_results"] = [c["product_id"]]  # stock answers are pure facts -> code sentence, no LLM
+        return reply("product_fact", fallback, [product_out(c, fallback)])  # (live bug: 20b contradicted the stock check)
 
     def my_orders(self, customer_id, lang, trace) -> dict:
         orders = tools.my_orders(customer_id)[:5]  # identity from the request, never the message

@@ -1,0 +1,45 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run all tests",
+      "type": "shell",
+      "command": ".venv\\Scripts\\python -m pytest tests -q -W ignore",
+      "group": {"kind": "test", "isDefault": true},
+      "problemMatcher": []
+    },
+    {
+      "label": "Validate data",
+      "type": "shell",
+      "command": ".venv\\Scripts\\python scripts\\validate_data.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "Eval (mock, fast, no LLM)",
+      "type": "shell",
+      "command": ".venv\\Scripts\\python scripts\\run_eval.py --mode mock",
+      "options": {"env": {"PYTHONIOENCODING": "utf-8"}},
+      "problemMatcher": []
+    },
+    {
+      "label": "Eval (live LLM, ~12 min)",
+      "type": "shell",
+      "command": ".venv\\Scripts\\python scripts\\run_eval.py --mode live --pause 3",
+      "options": {"env": {"PYTHONIOENCODING": "utf-8"}},
+      "problemMatcher": []
+    },
+    {
+      "label": "Red-team (live LLM)",
+      "type": "shell",
+      "command": ".venv\\Scripts\\python scripts\\redteam.py",
+      "options": {"env": {"PYTHONIOENCODING": "utf-8"}},
+      "problemMatcher": []
+    },
+    {
+      "label": "Reset database",
+      "type": "shell",
+      "command": ".venv\\Scripts\\python -c \"from app import db; db.init_db(reset=True); print('database reset')\"",
+      "problemMatcher": []
+    }
+  ]
+}

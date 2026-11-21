@@ -1,0 +1,73 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "1. API (FastAPI :8000)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["app.api:app", "--port", "8000"],
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {"HF_HUB_DISABLE_SYMLINKS_WARNING": "1"},
+      "justMyCode": true
+    },
+    {
+      "name": "2. UI (Streamlit :8501)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "streamlit",
+      "args": ["run", "ui/streamlit_app.py", "--server.port", "8501"],
+      "cwd": "${workspaceFolder}",
+      "justMyCode": true
+    },
+    {
+      "name": "3. Chat in terminal (demo conversations)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/chat_cli.py",
+      "args": ["--demo"],
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {"PYTHONIOENCODING": "utf-8"},
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "4. Chat in terminal (type your own)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/chat_cli.py",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {"PYTHONIOENCODING": "utf-8"},
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "5. Chat with NO LLM (mock mode)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/chat_cli.py",
+      "args": ["--demo"],
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {"MOCK_LLM": "true", "PYTHONIOENCODING": "utf-8"},
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "6. Run all tests",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["tests", "-q", "-W", "ignore"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "▶ Full app (API + UI)",
+      "configurations": ["1. API (FastAPI :8000)", "2. UI (Streamlit :8501)"],
+      "stopAll": true
+    }
+  ]
+}

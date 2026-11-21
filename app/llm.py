@@ -25,9 +25,11 @@ def chat_json(system: str, user: str, max_tokens: int = 900) -> tuple[dict, dict
                 messages=[{"role": "system", "content": system}, {"role": "user", "content": user}])
             usage = {"ms": int((time.time() - t0) * 1000), "tokens": resp.usage.total_tokens}
             return json.loads(resp.choices[0].message.content or ""), usage
-        except RateLimitError:  # HTTP 429 on the free tier -> wait 3 s, 6 s, 12 s
+        except RateLimitError:  # HTTP 429 (free-tier limit): wait once, briefly, then fail fast -> code fallback
             last = "rate limited (429)"
-            time.sleep(3 * 2 ** attempt)
+            if attempt:
+                break
+            time.sleep(2)
         except json.JSONDecodeError:  # broken JSON -> just try again
             last = "invalid JSON"
         except Exception as e:  # network / bad key -> give up, caller uses the fallback

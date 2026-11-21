@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parent.parent  # project root: app/config.py -> 
 load_dotenv(ROOT / ".env")  # read .env once at import time (the API key never sits in code)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")  # secret key for Groq; "" if missing (then LLM calls fail -> rule fallback)
-GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")  # which LLM to use for steps 1 and 4
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")  # which LLM to use for steps 1 and 4
 WHISPER_MODEL = os.getenv("WHISPER_MODEL", "whisper-large-v3-turbo")  # speech-to-text model for the voice bonus
 
 # MOCK_LLM=true -> no network calls; rule-based stand-ins are used instead.

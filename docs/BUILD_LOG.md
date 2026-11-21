@@ -223,3 +223,18 @@ Lesson: **mock mode hides LLM mistakes. Test both modes.** And the catalogue mus
 **Bug caught while rewriting:** reordering the words in `index_text` changed the embeddings, and a bare "JBL" search put a kurta at #2. I restored the exact original order and proved it identical.
 
 **Check:** 45 tests pass. Live re-run: 95.2% type, 100% grounded + safety (26 cases rate-limited to rules). Red-team 11/11. Mock eval: answer-type accuracy **92.9%** (was 90.5%), not-found **75%** (was 50%), groundedness / relevance / safety **100%**.
+
+## Phase 10 — Speed fix ✅
+**Problem:** replies took 24–40 s. **Cause (from Groq's 429 message):** the daily limit for `gpt-oss-120b` (200,000 tokens/day) was used up by the evals: "Used 199490". The old retry code then waited 3 + 6 + 12 s per call.
+
+**Fix:**
+- Switched to `openai/gpt-oss-20b` (its own quota, ~0.3 s per call vs 1.6 s)
+- On a 429: wait once for 2 s, then fail fast to the code-written reply
+
+**Result:** 1–4 s per message, with all steps using the LLM.
+
+**New bugs from the smaller model:**
+- "Is the blue one in size 9?" → it put "blue one" in product_type → not_found. Fix: a stock question right after results is a follow-up, never "not sold"; the colour and size are read from the message if the LLM misses them
+- It **contradicted the stock check** ("no information about blue size 9"). Fix: stock answers always use the code sentence (pure facts, no LLM)
+
+**Check:** 45 tests pass.
