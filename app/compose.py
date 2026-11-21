@@ -14,7 +14,7 @@ import re
 
 from app import llm, safety
 
-MONEY = re.compile(r"(?:₹|rs\.?|inr)\s*([\d,]+(?:\.\d+)?)", re.I)
+MONEY = re.compile(r"(?:₹|rs\.?|inr)\s*([\d,]+(?:\.\d+)?)\s*(k|lakh|lac)?\b", re.I)
 PID = re.compile(r"\bP-\d{4}\b")
 
 T = {  # code templates per language
@@ -81,20 +81,29 @@ def llm_compose(message: str, lang: str, kind: str, facts: dict) -> tuple[dict, 
 
 
 def allowed_numbers(cards: list[dict], extra: list[int | None]) -> set[int]:
-    nums = {c["price"] for c in cards} | {c.get("stock", 0) for c in cards}
+    """Rupee amounts the reply may mention: real prices + the shopper's budget (+ computed gaps).
+    NOT stock counts (live eval bug: '₹1 lakh' was read as ₹1 and accepted because a stock count was 1)."""
+    nums = {c["price"] for c in cards}
     nums |= {int(x) for x in extra if x}
     return nums
+
+
+def _rupees(num: str, unit: str | None) -> int | None:
+    try:
+        v = float(num.replace(",", ""))
+    except ValueError:
+        return None
+    unit = (unit or "").lower()
+    v *= 1000 if unit == "k" else 100000 if unit in ("lakh", "lac") else 1
+    return int(v)
 
 
 def grounding_check(text: str, allowed_ids: set[str], nums: set[int]) -> list[str]:
     """Return a list of problems found in text (empty list = grounded)."""
     problems = [f"unknown id {pid}" for pid in PID.findall(text) if pid not in allowed_ids]
-    for raw in MONEY.findall(text):
-        try:
-            val = int(float(raw.replace(",", "")))
-        except ValueError:
-            continue
-        if val not in nums:
+    for raw, unit in MONEY.findall(text):
+        val = _rupees(raw, unit)  # "₹1 lakh" -> 100000, "₹3k" -> 3000
+        if val is not None and val not in nums:
             problems.append(f"unknown amount ₹{val}")
     return problems
 

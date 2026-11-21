@@ -107,3 +107,21 @@ def test_session_not_shared_between_shoppers(brain):
     ask(brain, "bluetooth speaker", "shared", cid="C005")
     r = ask(brain, "compare the first two", "shared", cid="C006")  # C006 must not see C005's results
     assert r["answer_type"] == "clarification"
+
+
+def test_grounding_understands_lakh_and_k():
+    # "₹1 lakh" is 100000, not ₹1 (live eval R2 bug); stock counts are never valid rupee amounts
+    assert compose.grounding_check("all under ₹1 lakh", set(), {100000}) == []
+    assert compose.grounding_check("under ₹3k", set(), {3000}) == []
+    assert compose.grounding_check("only ₹1", set(), {100000}) == ["unknown amount ₹1"]
+    assert 1 not in compose.allowed_numbers([{"price": 2999, "stock": 1}], [])
+
+
+def test_unknown_brand_and_unknown_thing_are_not_found(brain):
+    from app.extract import Extraction
+    ext = Extraction(intent="recommend", product_type="Smartphone", brands=["Apple"], search_query="apple phone")
+    r = brain.recommend(ext, "Do you have Apple smartphones?", {"filters": {}, "last_results": []}, "en", {"tools": [], "llm": []})
+    assert r["answer_type"] == "not_found"
+    ext2 = Extraction(intent="product_fact", product_type="PlayStation 5", search_query="PlayStation 5")
+    r2 = brain.product_fact(ext2, "Is the PlayStation 5 available?", {"last_results": []}, "en", {"tools": [], "llm": []})
+    assert r2["answer_type"] == "not_found"

@@ -4,3 +4,5 @@ __pycache__/
 *.pyc
 data/shop.db
 .pytest_cache/
+
+eval/*.log

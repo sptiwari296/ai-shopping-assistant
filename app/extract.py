@@ -77,7 +77,7 @@ intent: one of
 search_query: short ENGLISH phrase describing the product need (translate Hindi/Hinglish), e.g. "bluetooth speaker deep bass"
 category: one of footwear, electronics, outdoor, home_kitchen, fashion, sports_fitness, or null
 product_type: pick from this list if it fits: {types}. If the shopper wants something NOT in the list (e.g. "electric car", "microwave"), put that raw name here.
-brands: list of brand names mentioned (e.g. ["Nike"]), else []
+brands: list of brand names mentioned, EVEN IF we may not sell that brand (e.g. ["Nike"], ["Apple"]), else []
 budget_min / budget_max: integers in rupees ("under 3k" -> budget_max 3000, "50k" -> 50000, "1 lakh" -> 100000), else null
 color, size: if mentioned ("size 9" -> "9", "XL"), else null
 use_case: purpose if mentioned (study, gaming, office, gift for father, trekking, running), else null

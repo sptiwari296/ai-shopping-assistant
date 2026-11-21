@@ -168,3 +168,25 @@ Lesson: **mock mode hides LLM mistakes. Test both modes.** And the catalogue mus
 **Known limitation:** the "P-1050 is free" attack got a safe but unhelpful "I can't provide that information".
 
 **Check:** 44 tests pass. Live red-team: **11/11 attacks handled safely**, and 3 injection attempts were flagged in the traces.
+
+## Phase 7 — Evaluation ✅
+**Built:** `eval/questions.json` (43 labelled cases in the brief's mix), `scripts/run_eval.py` (7 brief metrics + language, all checked in code against the DB), `scripts/export_traces.py` (3 sample audit records), `eval/report.md`.
+
+**How:** each case runs in a fresh session for C005; multi-turn cases check the last reply (and the previous turn for "cheaper" / "first two"). Two configurations: **live** (Groq) vs **mock** (rules only).
+
+**Results:**
+- Live v1: type 95.2%, groundedness 97.7%, not-found 50%, everything else 100%
+- Live v2 (after fixes): 100% on all metrics, p50 1.6 s
+- Mock: type 90.5%, not-found 50%, groundedness and safety 100%
+
+**Bugs the eval found:**
+- **The app accepted "₹1 lakh" as ₹1**, because stock counts were in the allowed-rupee set. Fix: a k/lakh parser, and stocks excluded
+- The LLM dropped the unknown brand "Apple" → code `not_found` for brands we don't carry
+- "PlayStation 5 available?" → `not_found`
+- A friend's orders weren't refused when the name was unknown → code safety net
+
+**Honesty:** v2 fixes were made after seeing the cases (overfitting risk), so v1 is reported too, and caveats are listed in `report.md`.
+
+**Also hit:** the ONNX embedding model crashed with the API server also running (7.7 GB RAM). Ran the eval with the servers stopped.
+
+**Check:** 46 tests pass.

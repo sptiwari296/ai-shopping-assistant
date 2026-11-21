@@ -186,6 +186,11 @@ class Brain:
         if asked_type and not self.known_type(asked_type):
             trace["route"] = "not_sold"
             return reply_("not_found", msg("not_sold", lang, what=asked_type))
+        unknown_brands = [b for b in ext.brands if _norm(b) not in {_norm(x) for x in self.brands}]
+        if unknown_brands and not set(ext.brands) - set(unknown_brands):
+            # every brand asked for is one we don't carry ("Apple smartphones", eval N3)
+            trace["route"] = "brand_not_sold"
+            return reply_("not_found", msg("not_sold", lang, what=f"{', '.join(unknown_brands)} products"))
         ext.product_type = self.known_type(asked_type)
         if ext.product_type:
             # The catalogue, not the LLM, decides which category a type belongs to.
@@ -286,6 +291,11 @@ class Brain:
 
     # ------------------------------------------------------------------ product fact
     def product_fact(self, ext, message, state, lang, trace) -> dict:
+        # "Is the PlayStation 5 available?" -> a thing we don't sell is not_found, not "which product?" (eval N4)
+        if ext.product_type and not ext.product_ids and not ext.refers_to and not self.known_type(ext.product_type) \
+                and _norm(ext.product_type) not in {_norm(g) for g in GENERIC_TYPES}:
+            trace["route"] = "not_sold"
+            return reply_("not_found", msg("not_sold", lang, what=ext.product_type))
         ids = self._targets(ext, state)
         if not ids:
             last = db.get_products(state.get("last_results", []))
@@ -318,7 +328,7 @@ class Brain:
             fallback = f"Yes, {card['name']} ({pid}){' in ' + which if which else ''} is in stock ({stock['units']} left) at ₹{card['price']:,}."
         else:
             fallback = f"Sorry, {card['name']} ({pid}){' in ' + which if which else ''} is out of stock right now."
-        nums = compose.allowed_numbers([card], [stock.get("units")])
+        nums = compose.allowed_numbers([card], [])
         answer, report = compose.write_simple(message, lang, "product_fact", {"stock_check": stock, "product": compose._lite(card)},
                                               fallback, nums, {pid})
         trace["llm"].append({"step": "compose", **report})
