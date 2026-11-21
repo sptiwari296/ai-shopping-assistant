@@ -131,6 +131,8 @@ class Brain:
         if ext.product_type:  # the catalogue decides the category, not the LLM (live bug: running shoes = sports)
             ext.category = self.type_category[ext.product_type]
         last = db.get_products(state["last_results"])
+        if ext.product_type and last and last[0]["product_type"] != ext.product_type:
+            last = []  # new topic: "sasta" must not compare with the PREVIOUS product type (live bug: speakers "under ₹5498" after shoes)
         f = memory.merge(state, ext, [p["price"] for p in last])
 
         need = "type" if not f.get("product_type") and not f.get("category") else \

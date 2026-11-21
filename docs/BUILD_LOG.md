@@ -247,3 +247,8 @@ Lesson: **mock mode hides LLM mistakes. Test both modes.** And the catalogue mus
 **Also:** the embedding model is now loaded once per process and shared (`search.get_model()`). With the UI app running, the test suite loaded 5 copies and ran out of RAM ("bad allocation").
 
 **Check:** TTS test clips transcribe exactly ("Give me running shoes under 5000 rupees.", "Show me a cheap bluetooth speaker."). A 1-word clip → 422. Chat replies take 1.7–2.0 s. 45 tests pass.
+
+## Phase 12 — Topic-switch fix ✅
+**Live bug:** after asking for shoes, "Mujhe ek sasta Bluetooth speaker chahiye" gave speakers "under ₹5498". "Sasta" (cheaper) was measured against the PREVIOUS topic's results (cheapest shoe ₹5,499 − 1).
+**Fix (`brain.recommend`):** if the new product type differs from what was shown last, the old results don't count. "Cheaper" only compares within the same product type.
+**Check:** a live 4-turn chat (shoes → sasta speaker → only JBL → cheaper) is correct at 3–5 s per reply. 45 tests pass.
