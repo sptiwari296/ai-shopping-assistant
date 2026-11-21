@@ -8,20 +8,20 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT))  # make "app" importable
 from app import db  # noqa: E402
 
-WANT = ["recommendation", "clarification", "refusal"]
+WANT = ["recommendation", "clarification", "refusal"]  # one trace of each kind
 
 
 def main():
-    picked = {}
+    picked = {}  # answer_type -> first trace found
     with db.connect() as conn:
-        for (rec,) in conn.execute("SELECT record FROM traces WHERE session_id LIKE 'eval-live-%' ORDER BY created_at"):
+        for (rec,) in conn.execute("SELECT record FROM traces WHERE session_id LIKE 'eval-live-%' ORDER BY created_at"):  # live-eval traces only
             t = json.loads(rec)
-            if t["answer_type"] in WANT and t["answer_type"] not in picked:
+            if t["answer_type"] in WANT and t["answer_type"] not in picked:  # first of each kind
                 picked[t["answer_type"]] = t
-    out = [picked[k] for k in WANT if k in picked]
+    out = [picked[k] for k in WANT if k in picked]  # in WANT order
     (ROOT / "eval" / "sample_audit_records.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"exported {len(out)} records:", [(t["trace_id"], t["answer_type"], t["message"]) for t in out])
 
