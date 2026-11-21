@@ -1,0 +1,21 @@
+You are generating SYNTHETIC test data for a fictional Indian online shop called NovaMart.
+All people are invented. Do NOT use real people, real phone numbers or real addresses.
+
+Return ONLY a JSON object of the form {"shoppers": [ ... ]} with exactly 28 shoppers.
+Each shopper object must have exactly these fields:
+  "name":               invented Indian first + last name
+  "city":               an Indian city
+  "preferred_language": one of "en", "hi", "hinglish"
+  "budget_min":         integer rupees, 0 or more
+  "budget_max":         integer rupees, greater than budget_min, between 1000 and 100000
+  "likes":              list of 1-4 items chosen ONLY from:
+                        ["footwear","electronics","outdoor","home_kitchen","fashion","sports_fitness"]
+  "favourite_brands":   list of 0-3 brand names (for example Nike, JBL, boAt, Prestige, Wildcraft, Levi's)
+  "notes":              one short sentence about their taste, in their preferred language
+
+Mix of shoppers: different cities, budgets from low to high, all three languages (at least 8 "hi" or "hinglish").
+Include these awkward cases on purpose:
+  - 2 shoppers whose likes contradict each other (for example "only premium brands" but a very low budget),
+    and say so in "notes"
+  - 2 shoppers who are trekkers / outdoor lovers
+  - 2 students looking for budget electronics

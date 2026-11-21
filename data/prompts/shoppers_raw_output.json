@@ -1,0 +1,294 @@
+{
+  "shoppers": [
+    {
+      "name": "Aarav Mehta",
+      "city": "Mumbai",
+      "preferred_language": "en",
+      "budget_min": 2000,
+      "budget_max": 8000,
+      "likes": ["electronics", "fashion"],
+      "favourite_brands": ["Apple", "Levi's"],
+      "notes": "Loves the latest gadgets and trendy clothes."
+    },
+    {
+      "name": "Priya Singh",
+      "city": "Delhi",
+      "preferred_language": "hi",
+      "budget_min": 5000,
+      "budget_max": 15000,
+      "likes": ["fashion", "sports_fitness"],
+      "favourite_brands": ["Nike", "Adidas"],
+      "notes": "फैशन और फिटनेस दोनों में रुचि रखती हैं।"
+    },
+    {
+      "name": "Rohit Kapoor",
+      "city": "Bengaluru",
+      "preferred_language": "hinglish",
+      "budget_min": 3000,
+      "budget_max": 12000,
+      "likes": ["electronics", "home_kitchen"],
+      "favourite_brands": ["JBL", "Prestige"],
+      "notes": "Tech aur kitchen gadgets dono pasand hain."
+    },
+    {
+      "name": "Sneha Patel",
+      "city": "Ahmedabad",
+      "preferred_language": "en",
+      "budget_min": 1500,
+      "budget_max": 5000,
+      "likes": ["fashion"],
+      "favourite_brands": ["Levi's"],
+      "notes": "Enjoys affordable stylish wear."
+    },
+    {
+      "name": "Vikram Rao",
+      "city": "Chennai",
+      "preferred_language": "hi",
+      "budget_min": 8000,
+      "budget_max": 25000,
+      "likes": ["footwear", "sports_fitness"],
+      "favourite_brands": ["Nike", "Puma"],
+      "notes": "जुते और फिटनेस के लिए प्रीमियम ब्रांड पसंद हैं।"
+    },
+    {
+      "name": "Ananya Sharma",
+      "city": "Kolkata",
+      "preferred_language": "hinglish",
+      "budget_min": 2000,
+      "budget_max": 7000,
+      "likes": ["outdoor", "sports_fitness"],
+      "favourite_brands": ["Wildcraft"],
+      "notes": "Outdoor trips ke liye sturdy gear chahiye."
+    },
+    {
+      "name": "Karan Joshi",
+      "city": "Pune",
+      "preferred_language": "en",
+      "budget_min": 4000,
+      "budget_max": 18000,
+      "likes": ["electronics", "home_kitchen"],
+      "favourite_brands": ["Samsung", "Prestige"],
+      "notes": "Looking for smart home devices."
+    },
+    {
+      "name": "Maya Iyer",
+      "city": "Hyderabad",
+      "preferred_language": "hi",
+      "budget_min": 2500,
+      "budget_max": 9000,
+      "likes": ["fashion", "footwear"],
+      "favourite_brands": ["Bata", "Levi's"],
+      "notes": "फैशन और जूते दोनों में रुचि है।"
+    },
+    {
+      "name": "Rajat Verma",
+      "city": "Jaipur",
+      "preferred_language": "en",
+      "budget_min": 1000,
+      "budget_max": 4000,
+      "likes": ["electronics"],
+      "favourite_brands": [],
+      "notes": "Student looking for budget electronics."
+    },
+    {
+      "name": "Nisha Gupta",
+      "city": "Lucknow",
+      "preferred_language": "hinglish",
+      "budget_min": 1200,
+      "budget_max": 3500,
+      "likes": ["electronics"],
+      "favourite_brands": [],
+      "notes": "College student ko cheap gadgets chahiye."
+    },
+    {
+      "name": "Arjun Desai",
+      "city": "Surat",
+      "preferred_language": "en",
+      "budget_min": 6000,
+      "budget_max": 20000,
+      "likes": ["home_kitchen", "fashion"],
+      "favourite_brands": ["Prestige", "Levi's"],
+      "notes": "Enjoys cooking and casual wear."
+    },
+    {
+      "name": "Tara Singh",
+      "city": "Bhopal",
+      "preferred_language": "hi",
+      "budget_min": 500,
+      "budget_max": 2500,
+      "likes": ["fashion"],
+      "favourite_brands": [],
+      "notes": "सस्ते फैशन में दिलचस्पी है, पर बजट बहुत कम है."
+    },
+    {
+      "name": "Manish Kulkarni",
+      "city": "Nagpur",
+      "preferred_language": "en",
+      "budget_min": 15000,
+      "budget_max": 50000,
+      "likes": ["footwear", "fashion"],
+      "favourite_brands": ["Nike", "Adidas"],
+      "notes": "Premium shoes and apparel enthusiast."
+    },
+    {
+      "name": "Rhea Nair",
+      "city": "Coimbatore",
+      "preferred_language": "hinglish",
+      "budget_min": 3000,
+      "budget_max": 10000,
+      "likes": ["outdoor", "sports_fitness"],
+      "favourite_brands": ["Wildcraft", "Decathlon"],
+      "notes": "Trekking ke liye gear dhoond rahi hoon."
+    },
+    {
+      "name": "Siddharth Malhotra",
+      "city": "Indore",
+      "preferred_language": "en",
+      "budget_min": 800,
+      "budget_max": 3000,
+      "likes": ["electronics"],
+      "favourite_brands": [],
+      "notes": "Low budget student buying a basic phone."
+    },
+    {
+      "name": "Lakshmi Rao",
+      "city": "Visakhapatnam",
+      "preferred_language": "hi",
+      "budget_min": 2000,
+      "budget_max": 8000,
+      "likes": ["home_kitchen"],
+      "favourite_brands": ["Prestige"],
+      "notes": "घर की रसोई के लिए कुछ नया चाहिए।"
+    },
+    {
+      "name": "Dev Sharma",
+      "city": "Gurugram",
+      "preferred_language": "en",
+      "budget_min": 5000,
+      "budget_max": 15000,
+      "likes": ["electronics", "fashion"],
+      "favourite_brands": ["Apple", "Levi's"],
+      "notes": "Tech-savvy and style conscious."
+    },
+    {
+      "name": "Pooja Chauhan",
+      "city": "Kanpur",
+      "preferred_language": "hinglish",
+      "budget_min": 3000,
+      "budget_max": 12000,
+      "likes": ["footwear", "sports_fitness"],
+      "favourite_brands": ["Adidas"],
+      "notes": "Gym aur daily walking ke liye shoes chahiye."
+    },
+    {
+      "name": "Yash Singh",
+      "city": "Mysore",
+      "preferred_language": "en",
+      "budget_min": 1000,
+      "budget_max": 3500,
+      "likes": ["fashion"],
+      "favourite_brands": [],
+      "notes": "Looking for budget-friendly trendy clothes."
+    },
+    {
+      "name": "Neha Verma",
+      "city": "Patna",
+      "preferred_language": "hi",
+      "budget_min": 2500,
+      "budget_max": 9000,
+      "likes": ["outdoor", "sports_fitness"],
+      "favourite_brands": ["Wildcraft"],
+      "notes": "आउटडोर ट्रेकिंग के शौकीन हैं, पर बजट सीमित है."
+    },
+    {
+      "name": "Aditi Khanna",
+      "city": "Vadodara",
+      "preferred_language": "en",
+      "budget_min": 15000,
+      "budget_max": 60000,
+      "likes": ["electronics", "home_kitchen"],
+      "favourite_brands": ["Samsung", "Prestige"],
+      "notes": "High-end appliances and gadgets lover."
+    },
+    {
+      "name": "Rahul Das",
+      "city": "Ranchi",
+      "preferred_language": "hinglish",
+      "budget_min": 5000,
+      "budget_max": 20000,
+      "likes": ["footwear", "fashion"],
+      "favourite_brands": ["Nike"],
+      "notes": "Sneakers aur street style ke liye shopping."
+    },
+    {
+      "name": "Kavita Patel",
+      "city": "Thiruvananthapuram",
+      "preferred_language": "hi",
+      "budget_min": 800,
+      "budget_max": 3000,
+      "likes": ["electronics"],
+      "favourite_brands": [],
+      "notes": "छात्रा है, सस्ते इलेक्ट्रॉनिक्स चाहिए."
+    },
+    {
+      "name": "Vivek Nair",
+      "city": "Jalandhar",
+      "preferred_language": "en",
+      "budget_min": 12000,
+      "budget_max": 45000,
+      "likes": ["fashion", "footwear"],
+      "favourite_brands": ["Levi's", "Puma"],
+      "notes": "Prefers premium denim and shoes."
+    },
+    {
+      "name": "Sonia Gupta",
+      "city": "Udaipur",
+      "preferred_language": "hi",
+      "budget_min": 2000,
+      "budget_max": 8000,
+      "likes": ["home_kitchen"],
+      "favourite_brands": ["Prestige"],
+      "notes": "रसोई के लिए अच्छे प्रोडक्ट्स चाहिए."
+    },
+    {
+      "name": "Harshad Mehra",
+      "city": "Amritsar",
+      "preferred_language": "en",
+      "budget_min": 3000,
+      "budget_max": 10000,
+      "likes": ["sports_fitness"],
+      "favourite_brands": ["Decathlon"],
+      "notes": "Gym enthusiast looking for affordable gear."
+    },
+    {
+      "name": "Deepika Joshi",
+      "city": "Bhubaneswar",
+      "preferred_language": "hinglish",
+      "budget_min": 500,
+      "budget_max": 1500,
+      "likes": ["fashion"],
+      "favourite_brands": [],
+      "notes": "Budget fashion ke liye shopping."
+    },
+    {
+      "name": "Amitabh Singh",
+      "city": "Guwahati",
+      "preferred_language": "hi",
+      "budget_min": 2000,
+      "budget_max": 4000,
+      "likes": ["fashion", "electronics"],
+      "favourite_brands": [],
+      "notes": "सिर्फ प्रीमियम ब्रांड चाहिये लेकिन बजट बहुत कम है."
+    },
+    {
+      "name": "Rohini Kulkarni",
+      "city": "Pondicherry",
+      "preferred_language": "en",
+      "budget_min": 1500,
+      "budget_max": 4500,
+      "likes": ["outdoor"],
+      "favourite_brands": ["Wildcraft"],
+      "notes": "Loves trekking but budget is tight."
+    }
+  ]
+}

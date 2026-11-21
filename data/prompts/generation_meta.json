@@ -1,0 +1,7 @@
+{
+ "generator": "Groq openai/gpt-oss-120b",
+ "prompt_file": "data/prompts/shoppers_prompt.txt",
+ "temperature": 0.8,
+ "shoppers": 29,
+ "orders": 105
+}
