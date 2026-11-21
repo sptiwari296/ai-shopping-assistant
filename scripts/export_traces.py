@@ -17,7 +17,7 @@ WANT = ["recommendation", "clarification", "refusal"]  # one trace of each kind
 def main():
     picked = {}  # answer_type -> first trace found
     with db.connect() as conn:
-        for (rec,) in conn.execute("SELECT record FROM traces WHERE session_id LIKE 'eval-live-%' ORDER BY created_at"):  # live-eval traces only
+        for (rec,) in conn.execute("SELECT record FROM traces WHERE session_id LIKE 'eval-live-%' ORDER BY rowid"):  # live-eval traces only
             t = json.loads(rec)
             if t["answer_type"] in WANT and t["answer_type"] not in picked:  # first of each kind
                 picked[t["answer_type"]] = t
