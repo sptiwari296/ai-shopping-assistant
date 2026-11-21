@@ -204,3 +204,6 @@ Lesson: **mock mode hides LLM mistakes. Test both modes.** And the catalogue mus
 - The secret is never baked into the image; it's passed at runtime from `.env`
 
 **Verified:** `docker compose up` → api healthy (276 indexed) + ui 200. A live Hinglish chat via the container returned 5 cheap speakers sorted by price. The browser UI → "Do you sell electric cars?" → `not_found`. Image size: 1.61 GB.
+
+## Phase 8b — README + final ✅
+`README.md` covers the approach, the architecture image, the 5-step flow, run steps (Docker + local), curl examples, the API table, the stack with reasons (including the Ollama → Groq swap), the 6 safety layers, the eval results (v1/v2/rules), the data summary, the layout, limitations, the AI-usage note and the team table. Tagged `final`.
