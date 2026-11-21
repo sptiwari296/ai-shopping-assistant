@@ -126,6 +126,10 @@ class Brain:
         elif any(re.search(rf"\b{re.escape(n.lower())}\b", message.lower()) for n in other_names) and \
                 re.search(r"\b(buy|bought|order|orders|purchase|kharida|liya)\b", message.lower()):
             ext.intent = "others_data"
+        elif re.search(r"\b(friend|dost|neighbou?r|padosi|brother|sister|bhai|behen|wife|husband|someone|another customer|other customer)\b",
+                       message.lower()) and re.search(r"\b(bought|buy|order|ordered|orders|purchase|kharida|kiya|liya)\b", message.lower()):
+            # someone else's purchases, even if the name is not in our shopper list (eval P3 failed in rules mode)
+            ext.intent = "others_data"
 
         reply = self.route(ext, message, state, customer_id, trace)
         reply["trace_id"] = trace["trace_id"]
