@@ -17,6 +17,8 @@ A conversational shopping assistant (HCLTech Future Ready AI Engineer hackathon,
 | 5 Grounding check | code | every product ID, ₹ amount, offer and count in the text must match the tool output, else it's replaced by code text |
 | → Reply + trace | code | one of 6 answer types; full audit record saved (`GET /trace/{id}`) |
 
+Full end-to-end workflow with a diagram (data → startup → each message → tests): [`docs/WORKFLOW.md`](docs/WORKFLOW.md).
+
 **Why a router, not multiple agents:** the intents are a fixed list, so a plain `if/elif` is exact, cheap and testable. Only steps 1 and 4 use the LLM.
 
 ## Run it
