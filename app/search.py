@@ -13,6 +13,7 @@ WHY
   BM25 catches exact tokens ("Nike", "20W"), RRF merges two lists whose scores
   live on different scales without any tuning.
 """
+import os
 import re
 import threading
 
@@ -44,7 +45,8 @@ def index_text(p: dict) -> str:
 
 class HybridIndex:
     def __init__(self):
-        self.model = TextEmbedding(EMBED_MODEL)
+        # In Docker the model is pre-downloaded to FASTEMBED_CACHE_PATH at build time
+        self.model = TextEmbedding(EMBED_MODEL, cache_dir=os.getenv("FASTEMBED_CACHE_PATH") or None)
         self.lock = threading.Lock()
         self.ids: list[str] = []
         self.texts: list[str] = []

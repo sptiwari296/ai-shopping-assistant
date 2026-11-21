@@ -10,7 +10,8 @@ import uuid
 import requests
 import streamlit as st
 
-API = os.getenv("API_URL", "http://localhost:8000")
+API = os.getenv("API_URL", "http://localhost:8000")             # where the UI calls the API
+LINK_API = os.getenv("PUBLIC_API_URL", API)                     # what the browser can open (differs in Docker)
 TYPE_LABEL = {"recommendation": "🛍️ Recommendation", "comparison": "⚖️ Comparison", "clarification": "❓ Question",
               "product_fact": "📦 Product info", "not_found": "🔍 Not found", "refusal": "🚫 Refused"}
 
@@ -70,7 +71,7 @@ def render(reply: dict):
             c1.markdown(f"**{p['name']}**  \n`{p['product_id']}` · {p['reason']}")
             c2.markdown(f"### ₹{p['price']:,}")
             c2.caption("✅ in stock" if p["in_stock"] else "❌ out of stock")
-    st.caption(f"trace `{reply['trace_id']}` · [replay]({API}/trace/{reply['trace_id']})")
+    st.caption(f"trace `{reply['trace_id']}` · [replay]({LINK_API}/trace/{reply['trace_id']})")
 
 
 def send(text: str, mode: str = "text"):

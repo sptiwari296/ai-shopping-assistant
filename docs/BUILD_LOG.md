@@ -190,3 +190,17 @@ Lesson: **mock mode hides LLM mistakes. Test both modes.** And the catalogue mus
 **Also hit:** the ONNX embedding model crashed with the API server also running (7.7 GB RAM). Ran the eval with the servers stopped.
 
 **Check:** 46 tests pass.
+
+## Phase 8a — Docker ✅
+**Built:** `Dockerfile` (python:3.12-slim, the embedding model **downloaded at build time** into `/models`), `docker-compose.yml` (`api` + `ui` from one image, SQLite on a named volume, API healthcheck, UI waits for a healthy API), `.dockerignore` (keeps `.env`, `.venv` and tests out of the image).
+
+**How:**
+- `search.py` reads `FASTEMBED_CACHE_PATH`, so the container uses the pre-downloaded model (no 90 s first start)
+- The UI uses `API_URL=http://api:8000` for container-to-container calls and `PUBLIC_API_URL=http://localhost:8000` for links in the browser
+- `.env` is optional (`required: false`)
+
+**Why:**
+- The brief requires `docker compose up`
+- The secret is never baked into the image; it's passed at runtime from `.env`
+
+**Verified:** `docker compose up` → api healthy (276 indexed) + ui 200. A live Hinglish chat via the container returned 5 cheap speakers sorted by price. The browser UI → "Do you sell electric cars?" → `not_found`. Image size: 1.61 GB.

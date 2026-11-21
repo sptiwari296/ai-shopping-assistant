@@ -1,0 +1,35 @@
+# docker compose up --build   ->  API on :8000 (Swagger at /docs), UI on :8501
+services:
+  api:
+    build: .
+    image: novamart-assistant
+    env_file:
+      - path: .env          # GROQ_API_KEY etc. Optional: without it, set MOCK_LLM=true below.
+        required: false
+    environment:
+      DB_PATH: db/shop.db   # SQLite lives on a volume; seeded from data/*.json on first start
+    volumes:
+      - shopdb:/app/db
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  ui:
+    image: novamart-assistant
+    command: ["streamlit", "run", "ui/streamlit_app.py", "--server.port", "8501", "--server.address", "0.0.0.0", "--server.headless", "true"]
+    environment:
+      API_URL: http://api:8000              # container-to-container
+      PUBLIC_API_URL: http://localhost:8000  # links shown in the browser
+    ports:
+      - "8501:8501"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  shopdb:
