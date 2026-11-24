@@ -1,0 +1,8 @@
+# Dark theme matching the HookForge-style CSS in ui/streamlit_app.py
+[theme]
+base = "dark"
+primaryColor = "#f2a93b"
+backgroundColor = "#08090c"
+secondaryBackgroundColor = "#12141a"
+textColor = "#ecedf1"
+font = "sans serif"

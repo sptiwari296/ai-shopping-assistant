@@ -21,7 +21,7 @@ services:
 
   ui:
     image: novamart-assistant
-    command: ["streamlit", "run", "ui/streamlit_app.py", "--server.port", "8501", "--server.address", "0.0.0.0", "--server.headless", "true"]
+    command: ["streamlit", "run", "ui/streamlit_app.py", "--server.port", "8501", "--server.address", "0.0.0.0", "--server.headless", "true", "--theme.base", "dark", "--theme.primaryColor", "#f2a93b", "--theme.backgroundColor", "#08090c", "--theme.secondaryBackgroundColor", "#12141a", "--theme.textColor", "#ecedf1"]
     environment:
       API_URL: http://api:8000              # container-to-container
       PUBLIC_API_URL: http://localhost:8000  # links shown in the browser

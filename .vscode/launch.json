@@ -6,10 +6,16 @@
       "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
-      "args": ["app.api:app", "--port", "8000"],
+      "args": [
+        "app.api:app",
+        "--port",
+        "8000"
+      ],
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/.env",
-      "env": {"HF_HUB_DISABLE_SYMLINKS_WARNING": "1"},
+      "env": {
+        "HF_HUB_DISABLE_SYMLINKS_WARNING": "1"
+      },
       "justMyCode": true
     },
     {
@@ -17,7 +23,22 @@
       "type": "debugpy",
       "request": "launch",
       "module": "streamlit",
-      "args": ["run", "ui/streamlit_app.py", "--server.port", "8501"],
+      "args": [
+        "run",
+        "ui/streamlit_app.py",
+        "--server.port",
+        "8501",
+        "--theme.base",
+        "dark",
+        "--theme.primaryColor",
+        "#f2a93b",
+        "--theme.backgroundColor",
+        "#08090c",
+        "--theme.secondaryBackgroundColor",
+        "#12141a",
+        "--theme.textColor",
+        "#ecedf1"
+      ],
       "cwd": "${workspaceFolder}",
       "justMyCode": true
     },
@@ -26,10 +47,14 @@
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/scripts/chat_cli.py",
-      "args": ["--demo"],
+      "args": [
+        "--demo"
+      ],
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/.env",
-      "env": {"PYTHONIOENCODING": "utf-8"},
+      "env": {
+        "PYTHONIOENCODING": "utf-8"
+      },
       "console": "integratedTerminal"
     },
     {
@@ -39,7 +64,9 @@
       "program": "${workspaceFolder}/scripts/chat_cli.py",
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/.env",
-      "env": {"PYTHONIOENCODING": "utf-8"},
+      "env": {
+        "PYTHONIOENCODING": "utf-8"
+      },
       "console": "integratedTerminal"
     },
     {
@@ -47,10 +74,15 @@
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/scripts/chat_cli.py",
-      "args": ["--demo"],
+      "args": [
+        "--demo"
+      ],
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/.env",
-      "env": {"MOCK_LLM": "true", "PYTHONIOENCODING": "utf-8"},
+      "env": {
+        "MOCK_LLM": "true",
+        "PYTHONIOENCODING": "utf-8"
+      },
       "console": "integratedTerminal"
     },
     {
@@ -58,7 +90,12 @@
       "type": "debugpy",
       "request": "launch",
       "module": "pytest",
-      "args": ["tests", "-q", "-W", "ignore"],
+      "args": [
+        "tests",
+        "-q",
+        "-W",
+        "ignore"
+      ],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal"
     }
@@ -66,7 +103,10 @@
   "compounds": [
     {
       "name": "▶ Full app (API + UI)",
-      "configurations": ["1. API (FastAPI :8000)", "2. UI (Streamlit :8501)"],
+      "configurations": [
+        "1. API (FastAPI :8000)",
+        "2. UI (Streamlit :8501)"
+      ],
       "stopAll": true
     }
   ]

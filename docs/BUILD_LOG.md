@@ -258,3 +258,8 @@ Lesson: **mock mode hides LLM mistakes. Test both modes.** And the catalogue mus
 **What:** `ui/streamlit_app.py` rewritten: chat on the left with answer-type badges, response time, 6 one-click suggestion chips and voice; a live results panel on the right with active filters, product cards (price, stock badge, rating, reason), the comparison table and a "How this answer was made" expander built from `GET /trace/{id}` (route, language, time, LLM steps, retrieved IDs, injection flags). Sidebar: shopper login, new conversation, API status, 5-step "How it works". Still a thin client: only API calls, no business logic.
 **Verified in the browser:** Hinglish chip → 5 cards cheapest-first with badges; "Compare the first two" → table + verdict; the trace expander shows route / language / ms / retrieved IDs.
 **Note:** port 8501 was taken by another local Streamlit app, so the preview runs on 8502.
+
+## Phase 14 — HookForge look + awwwards polish ✅
+**Why:** a more polished, trustworthy demo UI.
+**What:** HookForge design tokens (dark ground, amber accent, Inter / Instrument Serif / JetBrains Mono, 14px cards) in `ui/streamlit_app.py`, plus a dark theme in `.streamlit/config.toml`, `docker-compose.yml` and `.vscode/launch.json`. Awwwards craft: cards settle in with a 70 ms stagger and get a "✓ price checked" stamp (the grounding check made visible), a slow idle glow in the hero, hover/press/focus states, everything off under reduced motion, no em dashes in visible copy. Concept and rules in `DESIGN.md`.
+**Verified in the browser:** "running shoes under 4000" → 3 cards, 3 stamps, staggered delays 0/70/140 ms, no horizontal overflow.
