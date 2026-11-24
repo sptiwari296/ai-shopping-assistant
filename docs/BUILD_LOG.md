@@ -252,3 +252,9 @@ Lesson: **mock mode hides LLM mistakes. Test both modes.** And the catalogue mus
 **Live bug:** after asking for shoes, "Mujhe ek sasta Bluetooth speaker chahiye" gave speakers "under ₹5498". "Sasta" (cheaper) was measured against the PREVIOUS topic's results (cheapest shoe ₹5,499 − 1).
 **Fix (`brain.recommend`):** if the new product type differs from what was shown last, the old results don't count. "Cheaper" only compares within the same product type.
 **Check:** a live 4-turn chat (shoes → sasta speaker → only JBL → cheaper) is correct at 3–5 s per reply. 45 tests pass.
+
+## Phase 13 — New UI (design B: chat + product panel) ✅
+**Why:** a clearer demo for judges. The user picked design B out of 3 mockups (A marketplace, B chat + panel, C storefront).
+**What:** `ui/streamlit_app.py` rewritten: chat on the left with answer-type badges, response time, 6 one-click suggestion chips and voice; a live results panel on the right with active filters, product cards (price, stock badge, rating, reason), the comparison table and a "How this answer was made" expander built from `GET /trace/{id}` (route, language, time, LLM steps, retrieved IDs, injection flags). Sidebar: shopper login, new conversation, API status, 5-step "How it works". Still a thin client: only API calls, no business logic.
+**Verified in the browser:** Hinglish chip → 5 cards cheapest-first with badges; "Compare the first two" → table + verdict; the trace expander shows route / language / ms / retrieved IDs.
+**Note:** port 8501 was taken by another local Streamlit app, so the preview runs on 8502.
